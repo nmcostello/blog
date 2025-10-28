@@ -1,0 +1,114 @@
+package main
+
+import (
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+const postsDir = "posts"
+
+var listTmpl = template.Must(template.New("list").Parse(`
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Blog</title>
+	<style>
+		body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 0 20px; }
+		h1 { color: #333; }
+		ul { list-style: none; padding: 0; }
+		li { margin: 10px 0; }
+		a { color: #0066cc; text-decoration: none; }
+		a:hover { text-decoration: underline; }
+	</style>
+</head>
+<body>
+	<h1>Blog Posts</h1>
+	<ul>
+	{{range .}}
+		<li><a href="/blog/{{.}}">{{.}}</a></li>
+	{{end}}
+	</ul>
+</body>
+</html>
+`))
+
+var postTmpl = template.Must(template.New("post").Parse(`
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{.Title}}</title>
+	<style>
+		body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 0 20px; }
+		a { color: #0066cc; text-decoration: none; }
+		a:hover { text-decoration: underline; }
+		.back { margin-bottom: 20px; }
+	</style>
+</head>
+<body>
+	<div class="back"><a href="/blog">← Back to all posts</a></div>
+	{{.Content}}
+</body>
+</html>
+`))
+
+func main() {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/blog", listBlogPosts)
+	mux.HandleFunc("/blog/", serveBlogPost)
+
+	fmt.Println("Starting blog server on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", mux))
+}
+
+func listBlogPosts(w http.ResponseWriter, r *http.Request) {
+	files, err := os.ReadDir(postsDir)
+	if err != nil {
+		http.Error(w, "Failed to read posts directory", http.StatusInternalServerError)
+		return
+	}
+
+	var posts []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".html") {
+			title := strings.TrimSuffix(file.Name(), ".html")
+			posts = append(posts, title)
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	listTmpl.Execute(w, posts)
+}
+
+func serveBlogPost(w http.ResponseWriter, r *http.Request) {
+	title := strings.TrimPrefix(r.URL.Path, "/blog/")
+
+	if title == "" {
+		http.Redirect(w, r, "/blog", http.StatusMovedPermanently)
+		return
+	}
+
+	filename := filepath.Join(postsDir, title+".html")
+
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	data := struct {
+		Title   string
+		Content template.HTML
+	}{
+		Title:   title,
+		Content: template.HTML(content),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	postTmpl.Execute(w, data)
+}
