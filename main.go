@@ -27,6 +27,13 @@ var listTmpl = template.Must(template.New("list").Parse(`
 	</style>
 </head>
 <body>
+	<p>
+	Hi, I'm Noah, I'm a Software Engineer. I created this site so that I could start writing blogs.
+	I plan on writing about my hobbies (cooking, bikes, books, videogames) and programming or computer
+	science topics. I hope you enjoy and please provide feedback so I can become a better writer.
+
+	Future topic ideas: bike stuff, volunteering, distributed systems course labs
+	</p>	
 	<h1>Blog Posts</h1>
 	<ul>
 	{{range .}}
