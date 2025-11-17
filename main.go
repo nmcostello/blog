@@ -59,11 +59,18 @@ var postTmpl = template.Must(template.New("post").Parse(`
 func main() {
 	mux := http.NewServeMux()
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	mux.HandleFunc("/blog", listBlogPosts)
 	mux.HandleFunc("/blog/", serveBlogPost)
+	mux.Handle("/pictures/", http.StripPrefix("/pictures/", http.FileServer(http.Dir("pictures"))))
+	mux.HandleFunc("/", redirectToBlog)
 
-	fmt.Println("Starting blog server on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	fmt.Printf("Starting blog server on http://localhost:%s\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
 func listBlogPosts(w http.ResponseWriter, r *http.Request) {
@@ -76,8 +83,8 @@ func listBlogPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []string
 	for _, file := range files {
 		if !file.IsDir() && strings.HasSuffix(file.Name(), ".html") {
-			title := strings.TrimSuffix(file.Name(), ".html")
-			posts = append(posts, title)
+			url := strings.TrimSuffix(file.Name(), ".html")
+			posts = append(posts, url)
 		}
 	}
 
@@ -111,4 +118,13 @@ func serveBlogPost(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	postTmpl.Execute(w, data)
+}
+
+func redirectToBlog(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		http.Redirect(w, r, "/blog", http.StatusMovedPermanently)
+		return
+	}
+
+	http.NotFound(w, r)
 }

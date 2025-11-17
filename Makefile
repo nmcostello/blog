@@ -14,3 +14,9 @@ clean:
 
 tidy:
 	$(GO) mod tidy
+
+image:
+	docker build -t registry.gitlab.com/nmcostello/blog .
+
+push:
+	docker push registry.gitlab.com/nmcostello/blog

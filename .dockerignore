@@ -1,0 +1,17 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+
+# Build artifacts
+blog
+*.exe
+
+# Documentation
+README.md
+
+# Other
+.DS_Store
+Makefile
