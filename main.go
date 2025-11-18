@@ -7,10 +7,49 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 )
 
 const postsDir = "posts"
+
+type BlogPost struct {
+	Date  string
+	Title string
+	URL   string
+}
+
+func extractPostMetadata(filename string) (*BlogPost, error) {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	html := string(content)
+
+	// Extract date from meta tag
+	dateRegex := regexp.MustCompile(`<meta\s+name="date"\s+content="([^"]+)"`)
+	dateMatch := dateRegex.FindStringSubmatch(html)
+	date := ""
+	if len(dateMatch) > 1 {
+		date = dateMatch[1]
+	}
+
+	// Extract title from h1 tag
+	titleRegex := regexp.MustCompile(`<h1>([^<]+)</h1>`)
+	titleMatch := titleRegex.FindStringSubmatch(html)
+	title := ""
+	if len(titleMatch) > 1 {
+		title = titleMatch[1]
+	}
+
+	return &BlogPost{
+		Date:  date,
+		Title: title,
+		URL:   "",
+	}, nil
+}
 
 func main() {
 	mux := http.NewServeMux()
@@ -40,13 +79,24 @@ func listBlogPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var posts []string
+	var posts []BlogPost
 	for _, file := range files {
 		if !file.IsDir() && strings.HasSuffix(file.Name(), ".html") {
-			url := strings.TrimSuffix(file.Name(), ".html")
-			posts = append(posts, url)
+			filename := filepath.Join(postsDir, file.Name())
+			post, err := extractPostMetadata(filename)
+			if err != nil {
+				log.Printf("[ERROR] Failed to extract metadata from %s: %v", file.Name(), err)
+				continue
+			}
+			post.URL = strings.TrimSuffix(file.Name(), ".html")
+			posts = append(posts, *post)
 		}
 	}
+
+	// Sort posts by date, newest first
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].Date > posts[j].Date
+	})
 
 	log.Printf("[INFO] Found %d blog posts", len(posts))
 

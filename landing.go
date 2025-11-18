@@ -54,7 +54,7 @@ var ListTmpl = template.Must(template.New("list").Parse(`
 	<h1>Blog Posts</h1>
 	<ul>
 	{{range .}}
-		<li><a href="/blog/{{.}}">{{.}}</a></li>
+		<li><a href="/blog/{{.URL}}">{{.Date}} {{.Title}}</a></li>
 	{{end}}
 	</ul>
 </body>
