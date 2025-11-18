@@ -30,8 +30,12 @@ func main() {
 }
 
 func listBlogPosts(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[INFO] %s %s - Remote: %s, User-Agent: %s",
+		r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent())
+
 	files, err := os.ReadDir(postsDir)
 	if err != nil {
+		log.Printf("[ERROR] Failed to read posts directory: %v", err)
 		http.Error(w, "Failed to read posts directory", http.StatusInternalServerError)
 		return
 	}
@@ -44,14 +48,25 @@ func listBlogPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	log.Printf("[INFO] Found %d blog posts", len(posts))
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	ListTmpl.Execute(w, posts)
+	if err := ListTmpl.Execute(w, posts); err != nil {
+		log.Printf("[ERROR] Template execution failed: %v", err)
+		return
+	}
+
+	log.Printf("[INFO] Successfully rendered blog list page")
 }
 
 func serveBlogPost(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[INFO] %s %s - Remote: %s, User-Agent: %s",
+		r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent())
+
 	title := strings.TrimPrefix(r.URL.Path, "/blog/")
 
 	if title == "" {
+		log.Printf("[ERROR] Failed to serve blog post.")
 		http.Redirect(w, r, "/blog", http.StatusMovedPermanently)
 		return
 	}
@@ -60,6 +75,7 @@ func serveBlogPost(w http.ResponseWriter, r *http.Request) {
 
 	content, err := os.ReadFile(filename)
 	if err != nil {
+		log.Printf("[ERROR] Failed to load content for blog %s", title)
 		http.NotFound(w, r)
 		return
 	}
@@ -72,8 +88,13 @@ func serveBlogPost(w http.ResponseWriter, r *http.Request) {
 		Content: template.HTML(content),
 	}
 
+	log.Printf("[INFO] Succesfully loaded content for blog post")
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	PostTmpl.Execute(w, data)
+	if err := PostTmpl.Execute(w, data); err != nil {
+		log.Printf("[ERROR] Template execution failed: %v", err)
+		return
+	}
 }
 
 func redirectToBlog(w http.ResponseWriter, r *http.Request) {
