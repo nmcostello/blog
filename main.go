@@ -12,57 +12,6 @@ import (
 
 const postsDir = "posts"
 
-var listTmpl = template.Must(template.New("list").Parse(`
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Blog</title>
-	<style>
-		body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 0 20px; }
-		h1 { color: #333; }
-		ul { list-style: none; padding: 0; }
-		li { margin: 10px 0; }
-		a { color: #0066cc; text-decoration: none; }
-		a:hover { text-decoration: underline; }
-	</style>
-</head>
-<body>
-	<p>
-	Hi, I'm Noah, I'm a Software Engineer. I created this site so that I could start writing blogs.
-	I plan on writing about my hobbies (cooking, bikes, books, videogames) and programming or computer
-	science topics. I hope you enjoy and please provide feedback so I can become a better writer.
-
-	Future topic ideas: bike stuff, volunteering, distributed systems course labs
-	</p>	
-	<h1>Blog Posts</h1>
-	<ul>
-	{{range .}}
-		<li><a href="/blog/{{.}}">{{.}}</a></li>
-	{{end}}
-	</ul>
-</body>
-</html>
-`))
-
-var postTmpl = template.Must(template.New("post").Parse(`
-<!DOCTYPE html>
-<html>
-<head>
-	<title>{{.Title}}</title>
-	<style>
-		body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 0 20px; }
-		a { color: #0066cc; text-decoration: none; }
-		a:hover { text-decoration: underline; }
-		.back { margin-bottom: 20px; }
-	</style>
-</head>
-<body>
-	<div class="back"><a href="/blog">← Back to all posts</a></div>
-	{{.Content}}
-</body>
-</html>
-`))
-
 func main() {
 	mux := http.NewServeMux()
 
@@ -96,7 +45,7 @@ func listBlogPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	listTmpl.Execute(w, posts)
+	ListTmpl.Execute(w, posts)
 }
 
 func serveBlogPost(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +73,7 @@ func serveBlogPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	postTmpl.Execute(w, data)
+	PostTmpl.Execute(w, data)
 }
 
 func redirectToBlog(w http.ResponseWriter, r *http.Request) {

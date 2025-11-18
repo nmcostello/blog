@@ -4,7 +4,7 @@ BINARY=blog
 .PHONY: build run clean tidy
 
 build:
-	$(GO) build -o $(BINARY) main.go
+	$(GO) build -o $(BINARY)
 
 run: build
 	./$(BINARY)
