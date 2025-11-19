@@ -48,7 +48,7 @@ var ListTmpl = template.Must(template.New("list").Parse(`
 	<h1>Coding Stuff</h1>
 	<ul>
 		<li><a href="https://gitlab.com/nmcostello/blog">Blog Site Code</a></li>
-		<li><a href="https://gitlab.com/nmcostello/blog">Distribute Systems Course Lab Code</a></li>
+		<li><a href="https://gitlab.com/nmcostello/dist-system-labs">Distribute Systems Course Lab Code</a></li>
 	</ul>
 	
 	<h1>Blog Posts</h1>
