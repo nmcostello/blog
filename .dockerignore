@@ -1,17 +1,12 @@
-# Git
-.git
+node_modules/
+.git/
 .gitignore
-
-# IDE
-.vscode
-
-# Build artifacts
-blog
-*.exe
-
-# Documentation
 README.md
-
-# Other
+.env
+*.log
 .DS_Store
-Makefile
+.vscode/
+.idea/
+*.md
+!posts/*.md
+.claude/

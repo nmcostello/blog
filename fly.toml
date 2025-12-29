@@ -6,8 +6,6 @@
 app = 'blog-floral-hill-3820'
 primary_region = 'iad'
 
-[build]
-
 [http_service]
   internal_port = 8080
   force_https = true

@@ -12,10 +12,10 @@ interface Post {
 
 // Format date to YYYY-MM-DD
 function formatDate(dateString: string): string {
-  if (!dateString || dateString === "Unknown") return "Unknown";
+  if (!dateString || dateString === "Unknown") return "";
 
   const date = new Date(dateString);
-  return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
+  return date.toISOString().split("T")[0] || ""; // Returns YYYY-MM-DD
 }
 
 // Load all posts
@@ -52,7 +52,10 @@ async function loadPosts(): Promise<Post[]> {
 
 const posts = await loadPosts();
 
+const port = parseInt(process.env.PORT || "8080", 10);
+
 const server = Bun.serve({
+  port,
   async fetch(req) {
     const url = new URL(req.url);
 
@@ -76,14 +79,17 @@ const server = Bun.serve({
           <head>
             <meta charset="utf-8">
             <title>Noah Costello's Blog</title>
-            <style>
-              body { max-width: 800px; margin: 0 auto; padding: 20px; font-family: system-ui; }
-              article { margin: 40px 0; }
-              time { color: #666; font-size: 0.9em; }
-            </style>
+            <link rel="stylesheet" href="/styles.css">
           </head>
           <body>
             <h1>Noah Costello</h1>
+            <p class="intro">
+            Hi, I'm Noah 👋
+            <br>
+            <br>
+            I'm a Software Engineer. I want to use this site to learn how to improve my writing and to show the interesting
+            things that I'm working on. Topics include (but not limited to): tech, food, biking.
+            </p>
             ${postList}
           </body>
         </html>
@@ -110,12 +116,7 @@ const server = Bun.serve({
           <head>
             <meta charset="utf-8">
             <title>${post.title} - Noah Costello's Blog</title>
-            <style>
-              body { max-width: 800px; margin: 0 auto; padding: 20px; font-family: system-ui; line-height: 1.6; }
-              img { max-width: 100%; height: auto; }
-              time { color: #666; font-size: 0.9em; }
-              a { color: #0066cc; }
-            </style>
+            <link rel="stylesheet" href="/styles.css">
           </head>
           <body>
             <nav><a href="/">← Back to home</a></nav>
@@ -128,6 +129,14 @@ const server = Bun.serve({
           headers: { "Content-Type": "text/html" },
         },
       );
+    }
+
+    // Serve CSS file
+    if (url.pathname === "/styles.css") {
+      const file = Bun.file(join(import.meta.dir, "styles.css"));
+      return new Response(file, {
+        headers: { "Content-Type": "text/css" },
+      });
     }
 
     // Serve static files (images, etc.)
