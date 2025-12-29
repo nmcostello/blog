@@ -6,7 +6,7 @@ date: 2025-11-17
 
 # Autumn Bikepacking
 
-![crust lightning bolt bike](../pictures/crust.jpeg)
+![crust lightning bolt bike](../pictures/crust.webp)
 
 I went on my first bikepacking trip with a friend after talking about doing one for years. It was a sub-24-hour overnight ([S24O](https://www.adventurecycling.org/blog/s24os/))—barely—up the C&O canal towpath.
 

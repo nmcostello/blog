@@ -4,3 +4,6 @@ blog
 
 node_modules
 node_modules_*
+
+# Image optimization - exclude original large images
+pictures/originals/

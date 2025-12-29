@@ -10,6 +10,21 @@ interface Post {
   content: string;
 }
 
+// Markdoc config for lazy loading images
+const markdocConfig = {
+  nodes: {
+    image: {
+      render: "img",
+      attributes: {
+        src: { type: String },
+        alt: { type: String },
+        title: { type: String },
+        loading: { type: String, default: "lazy" },
+      },
+    },
+  },
+};
+
 // Format date to YYYY-MM-DD
 function formatDate(dateString: string): string {
   if (!dateString || dateString === "Unknown") return "";
@@ -30,7 +45,7 @@ async function loadPosts(): Promise<Post[]> {
     const source = await Bun.file(filePath).text();
 
     const ast = Markdoc.parse(source);
-    const content = Markdoc.transform(ast);
+    const content = Markdoc.transform(ast, markdocConfig);
     const frontmatter = ast.attributes.frontmatter
       ? yaml.load(ast.attributes.frontmatter)
       : {};
@@ -145,7 +160,11 @@ const server = Bun.serve({
       const file = Bun.file(filePath);
 
       if (await file.exists()) {
-        return new Response(file);
+        return new Response(file, {
+          headers: {
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
       }
     }
 
