@@ -10,6 +10,14 @@ interface Post {
   content: string;
 }
 
+// Format date to YYYY-MM-DD
+function formatDate(dateString: string): string {
+  if (!dateString || dateString === "Unknown") return "Unknown";
+
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
+}
+
 // Load all posts
 async function loadPosts(): Promise<Post[]> {
   const postsDir = join(import.meta.dir, "posts");
@@ -31,7 +39,7 @@ async function loadPosts(): Promise<Post[]> {
     posts.push({
       slug: file.replace(".md", ""),
       title: frontmatter.title,
-      date: frontmatter.date || "Unknown",
+      date: formatDate(frontmatter.date || "Unknown"),
       content: html,
     });
   }
@@ -120,6 +128,16 @@ const server = Bun.serve({
           headers: { "Content-Type": "text/html" },
         },
       );
+    }
+
+    // Serve static files (images, etc.)
+    if (url.pathname.startsWith("/pictures/")) {
+      const filePath = join(import.meta.dir, url.pathname.slice(1));
+      const file = Bun.file(filePath);
+
+      if (await file.exists()) {
+        return new Response(file);
+      }
     }
 
     return new Response("Not found", { status: 404 });
