@@ -91,7 +91,7 @@ nav a:hover {
 
 /* Article Cards (Home Page) */
 article {
-  margin: 60px 0;
+  margin: 32px 0;
   padding: 24px 0;
   border-bottom: 1px solid #e8e6e3;
   transition: all 0.2s ease;
@@ -125,6 +125,13 @@ time {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   margin-bottom: 0.5em;
+}
+
+/* Article Description */
+article .description {
+  color: #666;
+  margin-bottom: 0;
+  font-size: 0.95rem;
 }
 
 /* Images */
@@ -174,6 +181,6 @@ pre code {
   }
 
   article {
-    margin: 40px 0;
+    margin: 24px 0;
   }
 }

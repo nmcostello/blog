@@ -7,6 +7,7 @@ interface Post {
   slug: string;
   title: string;
   date: string;
+  description: string;
   content: string;
 }
 
@@ -55,6 +56,7 @@ async function loadPosts(): Promise<Post[]> {
       slug: file.replace(".md", ""),
       title: frontmatter.title,
       date: formatDate(frontmatter.date || "Unknown"),
+      description: frontmatter.description || "",
       content: html,
     });
   }
@@ -82,6 +84,7 @@ const server = Bun.serve({
         <article>
           <h2><a href="/posts/${post.slug}">${post.title}</a></h2>
           <time>${post.date}</time>
+          <p class="description">${post.description}</p>
         </article>
       `,
         )
@@ -102,8 +105,9 @@ const server = Bun.serve({
             Hi, I'm Noah 👋
             <br>
             <br>
-            I'm a Software Engineer. I want to use this site to learn how to improve my writing and to show the interesting
-            things that I'm working on. Topics include (but not limited to): tech, food, biking.
+            I'm a software engineer. I have a passion for riding bikes, alternative forms of transit (trains, bikes, walking), and technology. 
+            I want to use this site to learn how to improve my writing and to show the interesting
+            things that I'm working on. Potential writing topics will include: tech, bikes, transit, or anything else that I find interesting. 
             </p>
             ${postList}
           </body>
