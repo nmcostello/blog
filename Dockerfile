@@ -11,7 +11,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
 # Copy application files
-COPY index.ts tsconfig.json ./
+COPY index.ts logger.ts tsconfig.json ./
 
 # Copy static assets
 COPY posts ./posts
