@@ -2,6 +2,7 @@ import Markdoc from "@markdoc/markdoc";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import yaml from "js-yaml";
+import { createLogger } from "./logger";
 
 interface Post {
   slug: string;
@@ -68,111 +69,122 @@ async function loadPosts(): Promise<Post[]> {
 }
 
 const posts = await loadPosts();
+const log = createLogger();
 
 const port = parseInt(process.env.PORT || "8080", 10);
 
 const server = Bun.serve({
   port,
   async fetch(req) {
+    const startTime = performance.now();
     const url = new URL(req.url);
+    let response: Response;
+    let error: Error | undefined;
 
-    // Home page - list all posts
-    if (url.pathname === "/") {
-      const postList = posts
-        .map(
-          (post) => `
-        <article>
-          <h2><a href="/posts/${post.slug}">${post.title}</a></h2>
-          <time>${post.date}</time>
-          <p class="description">${post.description}</p>
-        </article>
-      `,
-        )
-        .join("");
-
-      return new Response(
-        `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Noah Costello's Blog</title>
-            <link rel="stylesheet" href="/styles.css">
-          </head>
-          <body>
-            <h1>Noah Costello</h1>
-            <p class="intro">
-            Hi, I'm Noah 👋
-            <br>
-            <br>
-            I'm a software engineer. I have a passion for riding bikes, alternative forms of transit (trains, bikes, walking), and technology. 
-            I want to use this site to learn how to improve my writing and to show the interesting
-            things that I'm working on. Potential writing topics will include: tech, bikes, transit, or anything else that I find interesting. 
-            </p>
-            ${postList}
-          </body>
-        </html>
-      `,
-        {
-          headers: { "Content-Type": "text/html" },
-        },
-      );
-    }
-
-    // Individual post pages
-    if (url.pathname.startsWith("/posts/")) {
-      const slug = url.pathname.replace("/posts/", "");
-      const post = posts.find((p) => p.slug === slug);
-
-      if (!post) {
-        return new Response("Post not found", { status: 404 });
-      }
-
-      return new Response(
-        `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>${post.title} - Noah Costello's Blog</title>
-            <link rel="stylesheet" href="/styles.css">
-          </head>
-          <body>
-            <nav><a href="/">← Back to home</a></nav>
+    try {
+      // Home page - list all posts
+      if (url.pathname === "/") {
+        const postList = posts
+          .map(
+            (post) => `
+          <article>
+            <h2><a href="/posts/${post.slug}">${post.title}</a></h2>
             <time>${post.date}</time>
-            ${post.content}
-          </body>
-        </html>
-      `,
-        {
-          headers: { "Content-Type": "text/html" },
-        },
-      );
-    }
+            <p class="description">${post.description}</p>
+          </article>
+        `,
+          )
+          .join("");
 
-    // Serve CSS file
-    if (url.pathname === "/styles.css") {
-      const file = Bun.file(join(import.meta.dir, "styles.css"));
-      return new Response(file, {
-        headers: { "Content-Type": "text/css" },
-      });
-    }
-
-    // Serve static files (images, etc.)
-    if (url.pathname.startsWith("/pictures/")) {
-      const filePath = join(import.meta.dir, url.pathname.slice(1));
-      const file = Bun.file(filePath);
-
-      if (await file.exists()) {
-        return new Response(file, {
-          headers: {
-            "Cache-Control": "public, max-age=31536000, immutable",
+        response = new Response(
+          `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Noah Costello's Blog</title>
+              <link rel="stylesheet" href="/styles.css">
+            </head>
+            <body>
+              <h1>Noah Costello</h1>
+              <p class="intro">
+              Hi, I'm Noah 👋
+              <br>
+              <br>
+              I'm a software engineer. I have a passion for riding bikes, alternative forms of transit (trains, bikes, walking), and technology.
+              I want to use this site to learn how to improve my writing and to show the interesting
+              things that I'm working on. Potential writing topics will include: tech, bikes, transit, or anything else that I find interesting.
+              </p>
+              ${postList}
+            </body>
+          </html>
+        `,
+          {
+            headers: { "Content-Type": "text/html" },
           },
+        );
+      }
+      // Individual post pages
+      else if (url.pathname.startsWith("/posts/")) {
+        const slug = url.pathname.replace("/posts/", "");
+        const post = posts.find((p) => p.slug === slug);
+
+        if (!post) {
+          response = new Response("Post not found", { status: 404 });
+        } else {
+          response = new Response(
+            `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>${post.title} - Noah Costello's Blog</title>
+              <link rel="stylesheet" href="/styles.css">
+            </head>
+            <body>
+              <nav><a href="/">← Back to home</a></nav>
+              <time>${post.date}</time>
+              ${post.content}
+            </body>
+          </html>
+        `,
+            {
+              headers: { "Content-Type": "text/html" },
+            },
+          );
+        }
+      }
+      // Serve CSS file
+      else if (url.pathname === "/styles.css") {
+        const file = Bun.file(join(import.meta.dir, "styles.css"));
+        response = new Response(file, {
+          headers: { "Content-Type": "text/css" },
         });
       }
+      // Serve static files (images, etc.)
+      else if (url.pathname.startsWith("/pictures/")) {
+        const filePath = join(import.meta.dir, url.pathname.slice(1));
+        const file = Bun.file(filePath);
+
+        if (await file.exists()) {
+          response = new Response(file, {
+            headers: {
+              "Cache-Control": "public, max-age=31536000, immutable",
+            },
+          });
+        } else {
+          response = new Response("Not found", { status: 404 });
+        }
+      } else {
+        response = new Response("Not found", { status: 404 });
+      }
+    } catch (err) {
+      error = err as Error;
+      response = new Response("Internal server error", { status: 500 });
     }
 
-    return new Response("Not found", { status: 404 });
+    await log(req, response, startTime, error);
+    return response;
   },
 });
 
