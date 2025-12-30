@@ -20,7 +20,7 @@ I deliberately didn't buy any extra racks/bags. Partly from a frugality perspect
 - under quilt or sleeping pad - it got a little cold in the hammock at night - even at 50+ degrees
 - my [Snow Peak Collapsible Coffee Drip](https://www.snowpeak.com/products/collapsible_pour_over-cs-113) pour over - although instant coffee did the trick, this is a bit more romantic
 - some way to filter non-potable water - we ended up using a lot for cooking (and someone only brought one bottle, but I'm not pointing fingers)
-- more snacks - duh
+- more snacks - duh  
 
 The bike handled the minimalist setup really well. As a rando bike, the Crust Lightning Bolt (above) is really only designed for shorter 1-2 day trips like this. Wrapped in 42mm tires, the Bolt was nimble, comfortable, and speedy. I didn't mind that the bike weighed about 50lbs fully-laden. Dynamo lighting seems like a must-have on trips like this. It's just too convenient not to have. 
 

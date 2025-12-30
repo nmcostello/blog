@@ -63,6 +63,21 @@ p.intro {
   border-bottom: 1px solid #e8e6e3;
 }
 
+/* Lists */
+ul,
+ol {
+  margin-bottom: 1.5em;
+  padding-left: 2em;
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+li:last-child {
+  margin-bottom: 0;
+}
+
 /* Links */
 a {
   color: #0066cc;
