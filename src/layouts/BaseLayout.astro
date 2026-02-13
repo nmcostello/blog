@@ -12,7 +12,7 @@ const { title } = Astro.props;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{title}</title>
-    <link rel="stylesheet" href={new URL('/styles.css', Astro.site).pathname}>
+    <link rel="stylesheet" href={`${import.meta.env.BASE_URL}styles.css`}>
   </head>
   <body>
     <slot />

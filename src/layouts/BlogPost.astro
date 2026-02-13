@@ -11,7 +11,7 @@ const formattedDate = date.toISOString().split('T')[0];
 ---
 
 <BaseLayout title={`${title} - Noah Costello's Blog`}>
-  <nav><a href="/">← Back to home</a></nav>
+  <nav><a href="/blog/">← Back to home</a></nav>
   <time>{formattedDate}</time>
   <slot />
 </BaseLayout>
