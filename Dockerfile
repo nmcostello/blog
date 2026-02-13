@@ -1,28 +1,14 @@
-# Use official Bun image
-FROM oven/bun:1
-
-# Set working directory
+# Build stage
+FROM oven/bun:1 AS builder
 WORKDIR /app
-
-# Copy package files
 COPY package.json bun.lock ./
+RUN bun install
+COPY . .
+RUN bun run build
 
-# Install dependencies
-RUN bun install --frozen-lockfile --production
-
-# Copy application files
-COPY index.ts logger.ts tsconfig.json ./
-
-# Copy static assets
-COPY posts ./posts
-COPY pictures ./pictures
-COPY styles.css ./
-
-# Expose port
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8080
-
-# Set environment variable for port
-ENV PORT=8080
-
-# Run the application
-CMD ["bun", "index.ts"]
+CMD ["nginx", "-g", "daemon off;"]
