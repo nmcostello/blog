@@ -7,10 +7,7 @@
     "build": "astro build",
     "preview": "astro preview"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "sharp": "^0.34.5"
-  },
+  "devDependencies": {},
   "dependencies": {
     "astro": "^4.16.0"
   }

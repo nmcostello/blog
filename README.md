@@ -1,5 +1,3 @@
-# Noah's Blog Site
+# Noah's Blog
 
-This site is written in Go using the standard Go library.
-
-The Go server directly serves the html.
+A static blog built with Astro, deployed to GitHub Pages.
